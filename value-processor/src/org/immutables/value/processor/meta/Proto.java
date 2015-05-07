@@ -443,7 +443,11 @@ public class Proto {
 
     @Value.Lazy
     public SourceExtraction.Imports sourceImports() {
-      return SourceExtraction.readImports(processing(), CachingElements.getDelegate(element()));
+      report().withElement(element()).warning("Extracting imports");
+      SourceExtraction.Imports result =
+          SourceExtraction.readImports(processing(), CachingElements.getDelegate(element()));
+      report().withElement(element()).warning("Got imports: %s", result);
+      return result;
     }
   }
 
@@ -740,9 +744,15 @@ public class Proto {
     }
 
     SourceExtraction.Imports sourceImports() {
-      return declaringType().isPresent()
-          ? declaringType().get().associatedTopLevel().sourceImports()
-          : SourceExtraction.Imports.empty();
+      SourceExtraction.Imports result;
+      if (declaringType().isPresent()) {
+        result = declaringType().get().associatedTopLevel().sourceImports();
+        report().withElement(element()).warning("Declaring type present %s, source imports %s", declaringType().get(), result);
+      } else {
+        result = SourceExtraction.Imports.empty();
+        report().withElement(element()).warning("Declaring type NOT present, no source imports");
+      }
+      return result;
     }
   }
 

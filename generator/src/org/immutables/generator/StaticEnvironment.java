@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.TypeElement;
+import javax.tools.Diagnostic;
 
 /**
  * This design is flawed and should be removed. Last time it was not done "right"
@@ -45,6 +46,7 @@ final class StaticEnvironment {
         component.complete();
       }
       components = null;
+      processing.getMessager().printMessage(Diagnostic.Kind.NOTE, "Static env shutdown");
       processing = null;
       round = null;
       annotations = null;
@@ -56,6 +58,7 @@ final class StaticEnvironment {
     void init(Set<? extends TypeElement> annotations, RoundEnvironment round, ProcessingEnvironment processing) {
       this.components = MutableClassToInstanceMap.create();
       this.processing = processing;
+      processing.getMessager().printMessage(Diagnostic.Kind.NOTE, "Static env init");
       this.round = round;
       this.annotations = ImmutableSet.copyOf(annotations);
       this.initialized = true;

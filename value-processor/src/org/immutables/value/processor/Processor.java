@@ -17,6 +17,7 @@ package org.immutables.value.processor;
 
 import com.google.common.collect.Multimap;
 import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.tools.Diagnostic;
 import org.immutables.generator.AbstractGenerator;
 import org.immutables.metainf.Metainf;
 import org.immutables.value.processor.meta.EnclosingMirror;
@@ -47,6 +48,12 @@ public final class Processor extends AbstractGenerator {
         .build();
 
     Multimap<DeclaringPackage, ValueType> values = round.collectValues();
+
+    processingEnv.getMessager().printMessage(
+        Diagnostic.Kind.MANDATORY_WARNING,
+        String.format(
+            "Values: %s",
+            values));
 
     invoke(new Generator_Immutables().usingValues(values).generate());
     invoke(new Generator_Gsons().usingValues(values).generate());

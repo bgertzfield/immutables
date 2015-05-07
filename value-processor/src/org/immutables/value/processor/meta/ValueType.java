@@ -738,6 +738,6 @@ public final class ValueType extends TypeIntrospectionBase {
 
   @Override
   public String toString() {
-    return "Type[" + name() + "]";
+    return "Type[" + name() + "] Imports" + constitution.protoclass().sourceImports().all;
   }
 }

@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
+import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
 import org.eclipse.jdt.internal.compiler.apt.model.ElementImpl;
@@ -51,6 +52,10 @@ public final class SourceExtraction {
     public boolean isEmpty() {
       return this == EMPTY;
     }
+
+    public String toString() {
+      return String.format("%s: all=%s classes=%s", super.toString(), all, classes);
+    }
   }
 
   public static Imports readImports(ProcessingEnvironment environment, TypeElement element) {
@@ -58,6 +63,9 @@ public final class SourceExtraction {
       Imports imports = PostprocessingMachine.collectImports(SourceExtraction.extract(environment, element));
       return imports;
     } catch (IOException ex) {
+      environment.getMessager().printMessage(
+          Diagnostic.Kind.MANDATORY_WARNING,
+          String.format("Could not collect imports for %s: %s", element, ex));
       return Imports.empty();
     }
   }
@@ -73,8 +81,14 @@ public final class SourceExtraction {
   private static final SourceExtractor DEFAULT_EXTRACTOR = new SourceExtractor() {
     @Override
     public CharSequence extract(ProcessingEnvironment environment, TypeElement element) throws IOException {
+      environment.getMessager().printMessage(
+          Diagnostic.Kind.MANDATORY_WARNING,
+          String.format("Extracting source for element %s (%s)", element, toFilename(element)));
       FileObject resource = environment.getFiler().getResource(
           StandardLocation.SOURCE_PATH, "", toFilename(element));
+      environment.getMessager().printMessage(
+          Diagnostic.Kind.MANDATORY_WARNING,
+          String.format("Got resource %s", resource));
 
       try (Reader reader = resource.openReader(true)) {
         return CharStreams.toString(reader);

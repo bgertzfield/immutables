@@ -87,8 +87,10 @@ public abstract class Round {
       if (protoclass.kind().isEnclosing()) {
         ValueType type = composer().compose(protoclass);
         enclosingTypes.put(protoclass.declaringType().get(), type);
+        protoclass.report().warning("enclosing types %s %s", protoclass.declaringType().get(), type);
       }
     }
+
     // Collect remaining and attach if nested
     for (Protoclass protoclass : protoclasses) {
       @Nullable ValueType current = null;
@@ -108,6 +110,7 @@ public abstract class Round {
       if (current == null) {
         current = composer().compose(protoclass);
       }
+      protoclass.report().warning("package %s current %s", protoclass.packageOf(), current);
       // We put all enclosing and nested values by the package
       builder.put(protoclass.packageOf(), current);
     }

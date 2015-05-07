@@ -56,6 +56,11 @@ public abstract class AbstractGenerator extends AbstractProcessor {
 
   protected final void invoke(Templates.Invokable invokable) {
     checkArgument(invokable.arity() == 0, "Entry template fragment should not have parameters");
+    processingEnv.getMessager().printMessage(
+        Diagnostic.Kind.MANDATORY_WARNING,
+        String.format(
+            "Invoking invokable %s",
+            invokable.getClass()));
     invokable.invoke(Templates.Invokation.initial());
   }
 
@@ -84,10 +89,18 @@ public abstract class AbstractGenerator extends AbstractProcessor {
   @Override
   public final boolean process(Set<? extends TypeElement> annotations, RoundEnvironment round) {
     try {
+      processingEnv.getMessager().printMessage(
+          Diagnostic.Kind.MANDATORY_WARNING,
+          String.format(
+              "Abstract generator process, processing over %s, error raised %s",
+              round.processingOver(),
+              round.errorRaised()));
       StaticEnvironment.init(annotations, round, processingEnv);
       if (!round.processingOver() && !round.errorRaised()) {
+        processingEnv.getMessager().printMessage(Diagnostic.Kind.MANDATORY_WARNING, "Abstract generator round");
         process();
       }
+      processingEnv.getMessager().printMessage(Diagnostic.Kind.MANDATORY_WARNING, "Abstract generator done");
       StaticEnvironment.shutdown();
     } catch (Exception ex) {
       processingEnv.getMessager()
